@@ -1,0 +1,28 @@
+services:
+  # ── Backend (Express proxy) ──────────────────────────────────────────────
+  - type: web
+    name: stock-tracker-api
+    runtime: node
+    buildCommand: npm install && npx tsx --version  # just verify tsx is available
+    startCommand: npx tsx server/index.ts
+    envVars:
+      - key: FINNHUB_API_KEY
+        sync: false          # you will set this manually in Render dashboard
+      - key: ALLOWED_ORIGIN
+        sync: false          # set to your frontend URL after first deploy
+      - key: PORT
+        value: 3001
+
+  # ── Frontend (React + Vite) ──────────────────────────────────────────────
+  - type: web
+    name: stock-tracker-ui
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false          # set to your backend URL after first deploy
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
